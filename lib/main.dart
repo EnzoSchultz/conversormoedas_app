@@ -36,7 +36,6 @@ class _ConversorMoedasState extends State<ConversorMoedas> {
 
       final response = await dio.get('https://api.exchangerate.host/live?access_key=e53a2b212c0a71e05cd03d9a5b5edb3f');
       if(response.statusCode == 200){
-        print(response.data);
         ValoresMoedas? valoresmoedas = ValoresMoedas.fromJson(response.data);
 
         setState(() {
@@ -59,19 +58,30 @@ class _ConversorMoedasState extends State<ConversorMoedas> {
       return;
     }
 
+    if (_moedaOrigem == null || _moedaDestino == null) {
+      setState(() {
+        _resultado = 'Selecione as moedas de origem e destino.';
+      });
+      return;
+    }
+
     final valor = double.parse(texto);
 
-    final chave = '$_moedaOrigem-$_moedaDestino';
-    final taxa = _moedas[chave];
+    final taxaOrigem = _moedas[_moedaOrigem];
+    final taxaDestino = _moedas[_moedaDestino];
 
-    if (taxa == null) {
+    if (taxaOrigem == null || taxaDestino == null) {
       setState(() {
         _resultado = 'Conversão não suportada.';
       });
       return;
     }
 
-    final convertido = valor * taxa;
+    // Calcular a taxa relativa e o valor convertido
+    final taxaRelativa = taxaDestino / taxaOrigem;
+    final convertido = valor * taxaRelativa;
+
+    // Formatar o resultado
     final formatado = NumberFormat.simpleCurrency(
       locale: 'pt_BR',
       name: _moedaDestino,
@@ -82,14 +92,13 @@ class _ConversorMoedasState extends State<ConversorMoedas> {
     });
   }
 
-
   Widget _buildDropdown(bool isOrigem) {
-    return DropdownButtonFormField<String>(
+    return DropdownButtonFormField<dynamic>(
       value: isOrigem ? _moedaOrigem : _moedaDestino,
       items: _moedas.entries.map((entry) {
-        return DropdownMenuItem<String>(
+        return DropdownMenuItem<dynamic>(
           value: entry.key,
-          child: Text('${entry.key} - ${entry.value}'),
+          child: Text('${entry.key} - ${entry.value.toStringAsFixed(2)}'),
         );
       }).toList(),
       onChanged: (valor) {
@@ -114,41 +123,39 @@ class _ConversorMoedasState extends State<ConversorMoedas> {
       appBar: AppBar(title: Text('Conversor de Moedas')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _moedas.isEmpty
-            ? Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  TextField(
-                    controller: _controller,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'Valor a converter',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(child: _buildDropdown(true)),
-                      SizedBox(width: 10),
-                      Icon(Icons.compare_arrows),
-                      SizedBox(width: 10),
-                      Expanded(child: _buildDropdown(false)),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _converterMoeda,
-                    child: Text('Converter'),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    _resultado,
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+        child: _moedas.isEmpty ? Center(child: CircularProgressIndicator()) : Column(
+          children: [
+            TextField(
+              controller: _controller,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: 'Valor a converter',
+                border: OutlineInputBorder(),
               ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: _buildDropdown(true)),
+                SizedBox(width: 10),
+                Icon(Icons.compare_arrows),
+                SizedBox(width: 10),
+                Expanded(child: _buildDropdown(false)),
+              ],
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _converterMoeda,
+              child: Text('Converter'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              _resultado,
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
