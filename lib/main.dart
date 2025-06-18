@@ -11,7 +11,22 @@ void main() {
 }
 
 // Tela Inicial
-class TelaInicial extends StatelessWidget {
+class TelaInicial extends StatefulWidget {
+  @override
+  State<TelaInicial> createState() => _TelaInicialState();
+}
+
+class _TelaInicialState extends State<TelaInicial> {
+  @override
+  void initState() {
+    Future.delayed(Duration(seconds:2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ConversorMoedas()),
+      );
+    });
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,22 +49,22 @@ class TelaInicial extends StatelessWidget {
               SizedBox(height: 40),
               Icon(Icons.compare_arrows, color: Colors.amber, size: 100),
               SizedBox(height: 40),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ConversorMoedas()),
-                  );
-                },
-                child: Text(
-                  'Converter',
-                  style: TextStyle(color: Colors.black, fontSize: 18),
-                ),
-              ),
+              // ElevatedButton(
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.amber,
+              //     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              //   ),
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => ConversorMoedas()),
+              //     );
+              //   },
+              //   child: Text(
+              //     'Converter',
+              //     style: TextStyle(color: Colors.black, fontSize: 18),
+              //   ),
+              // ),
             ],
           ),
         ),
