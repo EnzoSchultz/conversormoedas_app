@@ -158,7 +158,7 @@ class _ConversorMoedasState extends State<ConversorMoedas> {
         return DropdownMenuItem<dynamic>(
           value: entry.key,
           child: Text(
-            '${entry.key} - ${entry.value.toStringAsFixed(2)}',
+            '${entry.key.replaceAll('USD', '')} - ${entry.value.toStringAsFixed(2)}',
             style: TextStyle(color: Colors.white),
           ),
         );
